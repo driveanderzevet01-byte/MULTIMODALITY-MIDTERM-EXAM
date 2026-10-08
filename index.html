@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Midterm Exam · Multimodal Literacies</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f5f3f0; padding: 1rem; color: #1e1e1e; line-height: 1.5;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    }
+    #app { max-width: 900px; width: 100%; margin: 0 auto; }
+    .card {
+      background: white; border-radius: 24px; padding: 1.75rem 1.5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05); margin-bottom: 1.5rem; border: 1px solid #e8e5e0;
+    }
+    h1, h2, h3 { font-weight: 600; line-height: 1.3; color: #1e1e1e; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.4rem; margin: 1.5rem 0 0.75rem; border-bottom: 2px solid #d9d5cf; padding-bottom: 0.3rem; }
+    h3 { font-size: 1.1rem; margin: 1.25rem 0 0.5rem; }
+    .timer-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #1e1e1e; color: white; padding: 0.75rem 1.25rem;
+      border-radius: 60px; font-weight: 500; margin-bottom: 1.25rem;
+      flex-wrap: wrap; gap: 0.5rem;
+    }
+    .timer { font-family: monospace; font-size: 1.3rem; background: #333; padding: 0.2rem 0.8rem; border-radius: 40px; letter-spacing: 1px; }
+    .warning-badge { background: #d44; padding: 0.2rem 0.8rem; border-radius: 40px; font-size: 0.85rem; }
+    .question-block { margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 1px dashed #ddd; }
+    .question-block:last-child { border-bottom: none; }
+    .question-text { font-weight: 500; margin-bottom: 0.75rem; }
+    .options { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem; }
+    .option-item {
+      display: flex; align-items: flex-start; gap: 0.6rem; background: #faf9f7;
+      padding: 0.7rem 1rem; border-radius: 40px; border: 1px solid #e0dcd6;
+      cursor: pointer; transition: background 0.15s; font-size: 0.98rem;
+    }
+    .option-item:hover { background: #f0ede8; }
+    .option-item input[type="radio"] { margin-top: 0.2rem; accent-color: #1e1e1e; width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+    .option-item.selected { background: #e6e1da; border-color: #1e1e1e; }
+    .fill-group { background: #f8f7f5; padding: 1.25rem 1rem; border-radius: 20px; margin-bottom: 1.5rem; border-left: 4px solid #1e1e1e; }
+    .fill-group p { margin-bottom: 0.75rem; line-height: 2.2; }
+    .blank-input {
+      display: inline-block; width: 150px; padding: 0.3rem 0.5rem;
+      border: none; border-bottom: 2px solid #1e1e1e; background: transparent;
+      font-family: inherit; font-size: 0.98rem; margin: 0 0.2rem; outline: none; transition: border-color 0.15s;
+    }
+    .blank-input:focus { border-bottom-color: #aa7f3e; }
+    .wordbank { margin-top: 1rem; padding: 0.75rem 1rem; background: #edeae5; border-radius: 16px; font-size: 0.9rem; color: #3d3d3d; }
+    .wordbank strong { margin-right: 0.5rem; }
+    .grouping-grid { display: flex; flex-direction: column; gap: 1rem; margin: 1rem 0; }
+    .group-card { background: #faf9f7; border-radius: 16px; padding: 1rem; border: 1px solid #e0dcd6; }
+    .group-card h4 { font-size: 1rem; margin-bottom: 0.5rem; font-weight: 600; }
+    .group-card .inputs { display: flex; flex-direction: column; gap: 0.5rem; }
+    .group-card .inputs input {
+      width: 100%; padding: 0.6rem 0.9rem; border-radius: 40px;
+      border: 1px solid #ccc; font-family: inherit; font-size: 0.95rem; background: white;
+    }
+    .group-card .inputs input:focus { outline: 2px solid #1e1e1e; border-color: transparent; }
+    .keyword-list { font-size: 0.9rem; color: #3d3d3d; margin-bottom: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; padding-left: 0.25rem; }
+    .keyword-list span { background: #e6e1da; padding: 0.15rem 0.7rem; border-radius: 40px; }
+    .essay-block { margin-bottom: 1.5rem; }
+    .essay-block textarea {
+      width: 100%; min-height: 110px; border-radius: 16px; border: 1px solid #ccc;
+      padding: 0.8rem; font-family: inherit; font-size: 0.95rem; resize: vertical; background: #faf9f7;
+    }
+    .submit-area { display: flex; justify-content: center; margin: 2rem 0 1rem; }
+    .btn {
+      background: #1e1e1e; color: white; border: none; padding: 0.9rem 2.2rem;
+      border-radius: 60px; font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, opacity 0.2s; font-family: inherit;
+      border: 1px solid #1e1e1e; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .btn:hover { background: #333; }
+    .btn-secondary { background: white; color: #1e1e1e; }
+    .btn-secondary:hover { background: #f0ede8; }
+    .info-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .info-form label { font-weight: 500; display: block; margin-bottom: 0.3rem; }
+    .info-form input {
+      width: 100%; padding: 0.9rem 1rem; border-radius: 40px; border: 1px solid #ccc;
+      font-size: 1rem; font-family: inherit; background: #faf9f7;
+    }
+    .info-form input:focus { outline: 2px solid #1e1e1e; border-color: transparent; }
+    .hidden { display: none !important; }
+    .preview-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+    .preview-stats { background: #edeae5; padding: 0.5rem 1.2rem; border-radius: 40px; font-size: 0.9rem; }
+    .student-meta {
+      background: #f0ede8; padding: 0.9rem 1.2rem; border-radius: 16px;
+      margin-bottom: 1.25rem; font-size: 0.95rem; border-left: 4px solid #1e1e1e;
+    }
+    .student-meta p { margin: 0.2rem 0; }
+    .answer-row { padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .answer-row.correct .marker { color: #1a7a3a; font-weight: 600; }
+    .answer-row.wrong .marker { color: #b03030; font-weight: 600; }
+    .marker { display: inline-block; min-width: 2.5rem; }
+    .student-answer { color: #555; font-style: italic; margin-left: 0.5rem; }
+    @media (max-width: 600px) {
+      .card { padding: 1.25rem 1rem; }
+      h1 { font-size: 1.5rem; }
+      .blank-input { width: 110px; }
+      .option-item { font-size: 0.92rem; padding: 0.65rem 0.9rem; }
+    }
+    @media print {
+      body { background: white; padding: 0.5in; }
+      .card { box-shadow: none; border: none; padding: 0; }
+      .btn, .timer-bar, .submit-area, .preview-stats, .no-print { display: none !important; }
+    }
+    .no-print { display: block; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <div id="infoGate" class="card">
+    <h1>📚 Multimodal Literacies</h1>
+    <p style="color:#555; margin-bottom:1.5rem;">Midterm Examination · 130 minutes</p>
+    <div class="info-form">
+      <div>
+        <label for="studentName">Full Name</label>
+        <input type="text" id="studentName" placeholder="e.g. Alex Rivera" autocomplete="off">
+      </div>
+      <div>
+        <label for="studentID">Student ID</label>
+        <input type="text" id="studentID" placeholder="e.g. 2024-00123" autocomplete="off">
+      </div>
+      <div style="margin-top:0.5rem;">
+        <button id="startBtn" class="btn" style="width:100%;">Start Exam →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="examContainer" class="hidden">
+    <div class="timer-bar">
+      <span>⏳ Time Remaining</span>
+      <span class="timer" id="timerDisplay">130:00</span>
+      <span class="warning-badge" id="warningBadge">Warnings: 0/2</span>
+    </div>
+    <form id="examForm" onsubmit="return false;">
+      <div id="examContent"></div>
+    </form>
+    <div class="submit-area">
+      <button id="submitExamBtn" class="btn" style="font-size:1.1rem; padding:1rem 3rem;">Submit Exam</button>
+    </div>
+  </div>
+
+  <div id="previewPage" class="hidden">
+    <div class="card">
+      <div class="preview-header">
+        <h1>📄 Exam Preview</h1>
+        <div class="preview-stats" id="previewStats"></div>
+      </div>
+      <div class="student-meta" id="studentMeta"></div>
+      <p style="margin-bottom:1rem; color:#555;">Review your answers below. You cannot return to edit.</p>
+      <div id="previewContent"></div>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:2rem;" class="no-print">
+        <button id="savePdfBtn" class="btn">⬇ Save as PDF</button>
+        <button id="printBtn" class="btn btn-secondary">🖨 Print</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  const mcQuestions = [
+    { q: "A student reads a printed novel and writes a summary with a pen. This activity best demonstrates:", opts: ["Digital literacy", "Traditional literacy", "Multimodal literacy", "Critical discourse analysis"], ans: 1 },
+    { q: "The New London Group (1996) introduced the term \"multiliteracies\" primarily to address:", opts: ["The decline of print media in schools", "The multiplicity of communication channels and cultural diversity", "The need for standardized grammar instruction", "The separation of visual and verbal modes"], ans: 1 },
+    { q: "According to Saussure, the physical form of a sign (such as the sound or written letters) is called the:", opts: ["Signified", "Referent", "Signifier", "Interpretant"], ans: 2 },
+    { q: "A photograph of smoke rising from a chimney is understood as indicating fire. In Peirce's classification, this is an example of:", opts: ["Icon", "Symbol", "Index", "Myth"], ans: 2 },
+    { q: "In Barthes' semiotic theory, the literal, dictionary meaning of a sign is called:", opts: ["Connotation", "Myth", "Denotation", "Ideology"], ans: 2 },
+    { q: "A national flag is saluted with feelings of patriotism that seem natural and universal. Barthes would call this naturalized cultural meaning:", opts: ["Denotation", "Myth", "Index", "Signifier"], ans: 1 },
+    { q: "Which of the following best defines \"mode\" in multimodality?", opts: ["The physical tool used to deliver a message", "A socially shaped system for making meaning", "The literal content of an image", "The grammatical structure of a sentence"], ans: 1 },
+    { q: "A podcast is an example of a:", opts: ["Mode", "Medium", "Semiotic resource", "Metafunction"], ans: 1 },
+    { q: "According to Kress and van Leeuwen, the metafunction that deals with how an image positions the viewer is:", opts: ["Representational", "Compositional", "Interactional", "Ideational"], ans: 2 },
+    { q: "In an image, a person looks directly at the camera as if speaking to the viewer. This is an example of:", opts: ["Offer contact", "Demand contact", "Indexical sign", "Conceptual representation"], ans: 1 },
+    { q: "An image taken from a low angle, looking up at a subject, typically conveys:", opts: ["Equality between viewer and subject", "Power and authority of the subject", "Weakness of the subject", "Neutral observation"], ans: 1 },
+    { q: "In compositional metafunction, elements placed on the left side of a Western image typically represent:", opts: ["New information", "Ideal information", "Given information", "Salient information"], ans: 2 },
+    { q: "The most eye-catching element in a composition, determined by size, color contrast, or focus, is called:", opts: ["Framing", "Salience", "Information value", "Modality"], ans: 1 },
+    { q: "A photograph shows a doctor holding a syringe while looking at it with a patient. The gaze between them forms a vector. This is an example of:", opts: ["Conceptual representation", "Narrative representation", "Symbolic process", "Analytical process"], ans: 1 },
+    { q: "In Peirce's triadic model, the mental effect or meaning produced in the interpreter's mind is the:", opts: ["Representamen", "Object", "Interpretant", "Signifier"], ans: 2 },
+    { q: "The process of taking meaning from a written poem and re-expressing it as a short film is called:", opts: ["Transduction", "Denotation", "Framing", "Modality"], ans: 0 },
+    { q: "According to social semiotics, meaning-making is primarily:", opts: ["A fixed property of signs", "A social process shaped by context and producers", "A universal and natural phenomenon", "An individual psychological event"], ans: 1 },
+    { q: "A luxury car advertisement presents the car not just as a vehicle but as a symbol of success. This is an example of:", opts: ["Classificational process", "Symbolic process", "Action process", "Reactional process"], ans: 1 },
+    { q: "In Halliday's systemic functional linguistics, the function of language that establishes interpersonal relations is called:", opts: ["Ideational metafunction", "Textual metafunction", "Interpersonal metafunction", "Representational metafunction"], ans: 2 },
+    { q: "Which of the following is a key principle of social semiotics according to van Leeuwen (2005)?", opts: ["It is a pure, independent theory", "It provides direct answers to all cases", "It is a structure of investigation, not a pure theory", "It ignores social and cultural factors"], ans: 2 },
+    { q: "A student uses an AI image generator to create a scene from a short story. The prompt includes \"close-up, low-angle shot, high color contrast.\" This demonstrates:", opts: ["Transduction", "Prompting as multimodal design", "Critical evaluation", "Denotation"], ans: 1 },
+    { q: "The affordance of a mode refers to:", opts: ["Its physical weight and size", "What can and cannot be easily expressed through it", "Its grammatical rules", "Its historical origin"], ans: 1 },
+    { q: "In critical evaluation of AI-generated multimodal products, analyzing whether executive roles are consistently portrayed as male is an example of:", opts: ["Layout critique", "Authenticity check", "Representational bias", "Salience analysis"], ans: 2 },
+    { q: "The International Symbol of Access (wheelchair icon) is best classified as a:", opts: ["Index", "Icon", "Symbol", "Myth"], ans: 1 },
+    { q: "When text and images are used together, they create a relationship that can enhance or change meaning. This is the focus of:", opts: ["Text-image relations in social semiotics", "Saussure's dyadic model", "Peirce's triadic model", "Digital literacy"], ans: 0 }
+  ];
+
+  const fillParagraphs = [
+    {
+      text: "Ferdinand de Saussure proposed that a sign consists of two inseparable parts: the (1) _______, which is the physical form of the sign, and the (2) _______, which is the mental concept it evokes. The relationship between these two is arbitrary, meaning it is based on social convention rather than natural resemblance. Charles Sanders Peirce, on the other hand, developed a triadic model consisting of the representamen, the object, and the (3) _______, which is the mental effect produced in the interpreter's mind. Peirce also classified signs into three types: an (4) _______ resembles its object, an index has a causal connection to its object, and a (5) _______ is based purely on convention.",
+      wordbank: ["interpretant", "symbol", "signifier", "icon", "signified"],
+      answers: ["signifier", "signified", "interpretant", "icon", "symbol"]
+    },
+    {
+      text: "In Kress and van Leeuwen's visual grammar, the (6) _______ metafunction deals with what is shown in an image, including participants, processes, and circumstances. The (7) _______ metafunction concerns how the image relates to the viewer through contact, social distance, and perspective. The (8) _______ metafunction addresses how elements are arranged through information value, salience, and framing. In social semiotics, the term (9) _______ refers to all the actions and artifacts used to communicate, such as speech, gestures, and images. Finally, the process of taking meaning from one mode and re-expressing it in another mode is called (10) _______.",
+      wordbank: ["transduction", "representational", "semiotic resources", "compositional", "interactional"],
+      answers: ["representational", "interactional", "compositional", "semiotic resources", "transduction"]
+    }
+  ];
+
+  const groupingQuestions = [
+    {
+      title: "Three Metafunctions",
+      categories: ["Representational", "Interactional", "Compositional"],
+      keywords: [
+        { label: "A. Demand contact", cat: "Interactional" },
+        { label: "B. Salience", cat: "Compositional" },
+        { label: "C. Action process", cat: "Representational" },
+        { label: "D. Social distance", cat: "Interactional" },
+        { label: "E. Information value", cat: "Compositional" },
+        { label: "F. Conceptual representation", cat: "Representational" },
+        { label: "G. Perspective", cat: "Interactional" },
+        { label: "H. Framing", cat: "Compositional" }
+      ]
+    },
+    {
+      title: "Peirce's Sign Types",
+      categories: ["Icon", "Index", "Symbol"],
+      keywords: [
+        { label: "A. A portrait painting", cat: "Icon" },
+        { label: "B. Smoke indicating fire", cat: "Index" },
+        { label: "C. The word \"cat\"", cat: "Symbol" },
+        { label: "D. A map", cat: "Icon" },
+        { label: "E. A footprint in sand", cat: "Index" },
+        { label: "F. A national flag", cat: "Symbol" },
+        { label: "G. A photograph of a person", cat: "Icon" },
+        { label: "H. A weathervane showing wind direction", cat: "Index" }
+      ]
+    },
+    {
+      title: "Barthes' Levels of Meaning",
+      categories: ["Denotation", "Connotation", "Myth"],
+      keywords: [
+        { label: "A. A red rose as a flower with petals", cat: "Denotation" },
+        { label: "B. Diamonds representing eternal love", cat: "Myth" },
+        { label: "C. The word \"tree\" referring to a tall plant", cat: "Denotation" },
+        { label: "D. A black soldier saluting the French flag as natural patriotism", cat: "Myth" },
+        { label: "E. A rose representing romance", cat: "Connotation" },
+        { label: "F. A photograph of a fire showing burning flames", cat: "Denotation" }
+      ]
+    }
+  ];
+
+  const essayQuestions = [
+    { id: 1, text: "Explain the difference between denotation, connotation, and myth using Barthes' theory. Provide one example for each." },
+    { id: 2, text: "Describe the triadic model of the sign by Charles Sanders Peirce. Explain each component and how it differs from Saussure's dyadic model." },
+    { id: 4, text: "Identify and explain the three metafunctions in Kress and van Leeuwen's visual grammar. Give a brief example of how each can be applied to an image." },
+    { id: 5, text: "Explain the concept of \"affordances of modes.\" Why is it important for multimodal communication?" },
+    { id: 10, text: "What is critical evaluation in the context of digital tools and AI for multimodality? Discuss two aspects that should be evaluated." }
+  ];
+
+  function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  let studentName = "";
+  let studentID = "";
+  let timeLeft = 130 * 60;
+  let timerInterval = null;
+  let warningCount = 0;
+  let examActive = false;
+  let autoSubmitted = false;
+  let shuffledMC = [];
+  let shuffledFill = [];
+  let shuffledGroup = [];
+  let shuffledEssay = [];
+  let userAnswers = { mc: {}, fill: {}, group: {}, essay: {} };
+  let submitTimestamp = null;
+  let mcCorrectLetters = {};
+
+  const infoGate = document.getElementById('infoGate');
+  const examContainer = document.getElementById('examContainer');
+  const previewPage = document.getElementById('previewPage');
+  const examContent = document.getElementById('examContent');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const warningBadge = document.getElementById('warningBadge');
+  const startBtn = document.getElementById('startBtn');
+  const submitExamBtn = document.getElementById('submitExamBtn');
+  const previewContent = document.getElementById('previewContent');
+  const previewStats = document.getElementById('previewStats');
+  const studentMeta = document.getElementById('studentMeta');
+  const savePdfBtn = document.getElementById('savePdfBtn');
+  const printBtn = document.getElementById('printBtn');
+
+  // Build paragraph HTML with local sequential index per paragraph
+  function buildParagraphHtml(text, pIdx) {
+    const regex = /\((\d+)\)\s*_{3,}/g;
+    let result = '';
+    let lastIndex = 0;
+    let match;
+    let localIdx = 0;
+    while ((match = regex.exec(text)) !== null) {
+      result += text.slice(lastIndex, match.index);
+      result += `<input class="blank-input" type="text" id="fill_${pIdx}_${localIdx}" data-para="${pIdx}" data-blank="${localIdx}" placeholder="...">`;
+      lastIndex = regex.lastIndex;
+      localIdx++;
+    }
+    result += text.slice(lastIndex);
+    return result;
+  }
+
+  function renderExam() {
+    shuffledMC = shuffleArray(mcQuestions);
+    shuffledFill = shuffleArray(fillParagraphs);
+    shuffledGroup = shuffleArray(groupingQuestions);
+    shuffledEssay = shuffleArray(essayQuestions);
+
+    mcCorrectLetters = {};
+    let html = '';
+
+    // --- Section A: MCQ ---
+    html += '<h2>Section A: Multiple Choice (25 Questions)</h2>';
+    shuffledMC.forEach((q, idx) => {
+      const qNum = idx + 1;
+      const letters = ['A', 'B', 'C', 'D'];
+      const indexedOpts = q.opts.map((opt, i) => ({ opt, origIdx: i }));
+      const shuffledOpts = shuffleArray(indexedOpts);
+      const correctLetter = letters[shuffledOpts.findIndex(o => o.origIdx === q.ans)];
+      mcCorrectLetters[idx] = correctLetter;
+
+      html += `<div class="question-block" data-qtype="mc" data-qidx="${idx}">`;
+      html += `<div class="question-text">${qNum}. ${q.q}</div>`;
+      html += `<div class="options">`;
+      shuffledOpts.forEach((o, oi) => {
+        const letter = letters[oi];
+        html += `<label class="option-item" data-letter="${letter}">
+          <input type="radio" name="mc_${idx}" value="${letter}" data-qidx="${idx}">
+          <span>${letter}. ${o.opt}</span>
+        </label>`;
+      });
+      html += `</div></div>`;
+    });
+
+    // --- Section B: Fill in the Blanks ---
+    html += '<h2>Section B: Fill in the Blanks</h2>';
+    shuffledFill.forEach((para, pIdx) => {
+      html += `<div class="fill-group" data-para="${pIdx}">`;
+      html += `<p>${buildParagraphHtml(para.text, pIdx)}</p>`;
+      html += `<div class="wordbank"><strong>Word Bank:</strong> ${para.wordbank.join(' · ')}</div>`;
+      html += `</div>`;
+    });
+
+    // --- Section C: Grouping (3 fixed inputs per category, accept words) ---
+    html += '<h2>Section C: Grouping in a Category</h2>';
+    html += '<p style="font-size:0.9rem;color:#555;margin-bottom:0.75rem;">Type the keyword (without the letter prefix) into the boxes under the matching category. Each category has 3 boxes — leave unused boxes blank. Order does not matter.</p>';
+    shuffledGroup.forEach((g, gIdx) => {
+      html += `<div class="grouping-grid" data-group="${gIdx}">`;
+      html += `<h3>${gIdx + 1}. ${g.title}</h3>`;
+      html += `<div class="keyword-list">${g.keywords.map(k => `<span>${k.label}</span>`).join('')}</div>`;
+      g.categories.forEach(cat => {
+        html += `<div class="group-card">
+          <h4>${cat}</h4>
+          <div class="inputs">`;
+        for (let i = 0; i < 3; i++) {
+          html += `<input type="text" class="group-input" data-group="${gIdx}" data-cat="${cat}" data-slot="${i}" placeholder="Type keyword e.g. A map">`;
+        }
+        html += `</div></div>`;
+      });
+      html += `</div>`;
+    });
+
+    // --- Section D: Essay ---
+    html += '<h2>Section D: Short Answer / Essay</h2>';
+    shuffledEssay.forEach((eq, eIdx) => {
+      html += `<div class="essay-block" data-essay="${eIdx}">
+        <div class="question-text">${eIdx + 1}. ${eq.text}</div>
+        <textarea id="essay_${eIdx}" data-essay="${eIdx}" placeholder="Write your answer here..."></textarea>
+      </div>`;
+    });
+
+    examContent.innerHTML = html;
+
+    // Listeners: MCQ
+    examContent.querySelectorAll('input[type="radio"]').forEach(inp => {
+      inp.addEventListener('change', function() {
+        const name = this.name;
+        document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.closest('.option-item').classList.remove('selected'));
+        this.closest('.option-item').classList.add('selected');
+        userAnswers.mc[this.dataset.qidx] = this.value;
+      });
+    });
+
+    // Listeners: Fill blanks
+    examContent.querySelectorAll('.blank-input').forEach(inp => {
+      inp.addEventListener('input', function() {
+        const key = `fill_${this.dataset.para}_${this.dataset.blank}`;
+        userAnswers.fill[key] = this.value;
+      });
+    });
+
+    // Listeners: Group inputs
+    examContent.querySelectorAll('.group-input').forEach(inp => {
+      inp.addEventListener('input', function() {
+        const key = `group_${this.dataset.group}_${this.dataset.cat}_${this.dataset.slot}`;
+        userAnswers.group[key] = this.value;
+      });
+    });
+
+    // Listeners: Essay
+    examContent.querySelectorAll('textarea[data-essay]').forEach(ta => {
+      ta.addEventListener('input', function() {
+        userAnswers.essay[this.dataset.essay] = this.value;
+      });
+    });
+  }
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        if (examActive) { autoSubmitted = true; submitExam(true); }
+        return;
+      }
+      timeLeft--;
+      const m = Math.floor(timeLeft / 60);
+      const s = timeLeft % 60;
+      timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      timerDisplay.style.color = timeLeft <= 300 ? '#ff8888' : 'white';
+    }, 1000);
+  }
+
+  function handleVisibilityChange() {
+    if (!examActive || autoSubmitted) return;
+    if (document.hidden) {
+      warningCount++;
+      warningBadge.textContent = `Warnings: ${warningCount}/2`;
+      if (warningCount >= 3) { autoSubmitted = true; submitExam(true); }
+    }
+  }
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  function submitExam(isAuto) {
+    if (!examActive) return;
+    examActive = false;
+    if (timerInterval) clearInterval(timerInterval);
+
+    const now = new Date();
+    const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'UTC' };
+    submitTimestamp = gmt7.toLocaleString('en-GB', { ...options, timeZone: 'UTC' }) + ' GMT+7';
+
+    examContent.querySelectorAll('.blank-input').forEach(inp => {
+      const key = `fill_${inp.dataset.para}_${inp.dataset.blank}`;
+      userAnswers.fill[key] = inp.value;
+    });
+    examContent.querySelectorAll('.group-input').forEach(inp => {
+      const key = `group_${inp.dataset.group}_${inp.dataset.cat}_${inp.dataset.slot}`;
+      userAnswers.group[key] = inp.value;
+    });
+    examContent.querySelectorAll('textarea[data-essay]').forEach(ta => {
+      userAnswers.essay[ta.dataset.essay] = ta.value;
+    });
+
+    renderPreview(isAuto);
+    examContainer.classList.add('hidden');
+    previewPage.classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  // Normalize a keyword phrase: strip leading letter prefix (A. / A) / A) etc),
+  // lowercase, collapse whitespace, remove punctuation except spaces.
+  function normalizeKeyword(str) {
+    if (!str) return '';
+    let s = str.trim().toLowerCase();
+    // Strip a leading letter prefix like "a.", "a)", "a ", "a - " etc.
+    s = s.replace(/^[a-z]\s*[\.\)\-\:]\s*/, '');
+    // If no punctuation, and first char is a letter followed by space,
+    // it's likely still a prefix (e.g. "a map"). Strip it.
+    s = s.replace(/^[a-z]\s+/, '');
+    // Remove non-alphanumeric characters except spaces
+    s = s.replace(/[^a-z0-9\s]/g, ' ');
+    // Collapse multiple spaces
+    s = s.replace(/\s+/g, ' ').trim();
+    return s;
+  }
+
+  function renderPreview(isAuto) {
+    let html = '';
+    let correctMC = 0;
+
+    studentMeta.innerHTML = `
+      <p><strong>Name:</strong> ${studentName}</p>
+      <p><strong>Student ID:</strong> ${studentID}</p>
+      <p><strong>Submitted:</strong> ${submitTimestamp}${isAuto ? ' (auto-submitted)' : ''}</p>
+    `;
+
+    html += '<h2>Section A: Multiple Choice</h2>';
+    shuffledMC.forEach((q, idx) => {
+      const userLetter = userAnswers.mc[idx] || null;
+      const correctLetter = mcCorrectLetters[idx];
+      const isCorrect = userLetter === correctLetter;
+      if (isCorrect) correctMC++;
+      html += `<div class="answer-row ${isCorrect ? 'correct' : 'wrong'}">
+        <span class="marker">${isCorrect ? '✓' : '✗'}</span>
+        <strong>Q${idx + 1}.</strong> ${q.q}<br>
+        <span class="student-answer">Your answer: ${userLetter || '(not answered)'}</span>
+      </div>`;
+    });
+
+    html += '<h2>Section B: Fill in the Blanks</h2>';
+    shuffledFill.forEach((para, pIdx) => {
+      html += `<div style="margin-bottom:1rem;"><strong>Paragraph ${pIdx + 1}</strong></div>`;
+      para.answers.forEach((correctVal, bIdx) => {
+        const key = `fill_${pIdx}_${bIdx}`;
+        const userVal = (userAnswers.fill[key] || '').trim();
+        const isCorrect = userVal.toLowerCase() === correctVal.toLowerCase();
+        html += `<div class="answer-row ${isCorrect ? 'correct' : 'wrong'}">
+          <span class="marker">${isCorrect ? '✓' : '✗'}</span>
+          Blank ${bIdx + 1}: <span class="student-answer">${userVal || '(empty)'}</span>
+        </div>`;
+      });
+    });
+
+    html += '<h2>Section C: Grouping</h2>';
+    shuffledGroup.forEach((g, gIdx) => {
+      html += `<div style="margin-bottom:1rem;"><strong>${gIdx + 1}. ${g.title}</strong></div>`;
+      g.categories.forEach(cat => {
+        // Build expected set of normalized phrases
+        const expectedSet = g.keywords
+          .filter(k => k.cat === cat)
+          .map(k => normalizeKeyword(k.label))
+          .sort();
+        // Collect all user inputs for this category
+        const userPhrases = [];
+        for (let i = 0; i < 3; i++) {
+          const key = `group_${gIdx}_${cat}_${i}`;
+          const val = userAnswers.group[key] || '';
+          if (val.trim()) {
+            userPhrases.push(normalizeKeyword(val));
+          }
+        }
+        userPhrases.sort();
+        const isCorrect = userPhrases.join('|') === expectedSet.join('|');
+        const displayUser = userPhrases.length > 0 ? userPhrases.join(' · ') : '(empty)';
+        html += `<div class="answer-row ${isCorrect ? 'correct' : 'wrong'}">
+          <span class="marker">${isCorrect ? '✓' : '✗'}</span>
+          <strong>${cat}:</strong> <span class="student-answer">${displayUser}</span>
+        </div>`;
+      });
+    });
+
+    html += '<h2>Section D: Short Answer / Essay</h2>';
+    shuffledEssay.forEach((eq, eIdx) => {
+      const userVal = userAnswers.essay[eIdx] || '(empty)';
+      html += `<div class="answer-row">
+        <strong>${eIdx + 1}. ${eq.text}</strong>
+        <div class="student-answer" style="margin-top:0.3rem;">${userVal}</div>
+      </div>`;
+    });
+
+    previewContent.innerHTML = html;
+    previewStats.textContent = `MC correct: ${correctMC}/${shuffledMC.length}`;
+  }
+
+  savePdfBtn.addEventListener('click', () => window.print());
+  printBtn.addEventListener('click', () => window.print());
+
+  startBtn.addEventListener('click', () => {
+    const name = document.getElementById('studentName').value.trim();
+    const id = document.getElementById('studentID').value.trim();
+    if (!name || !id) { alert('Please fill in both your name and student ID.'); return; }
+    studentName = name;
+    studentID = id;
+    infoGate.classList.add('hidden');
+    examContainer.classList.remove('hidden');
+    examActive = true;
+    renderExam();
+    startTimer();
+    window.scrollTo(0, 0);
+  });
+
+  submitExamBtn.addEventListener('click', () => {
+    if (!examActive) return;
+    if (confirm('Are you sure you want to submit? You cannot return to edit.')) submitExam(false);
+  });
+
+})();
+</script>
+</body>
+</html>
